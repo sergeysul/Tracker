@@ -20,11 +20,11 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
     
     private let nameTrackerField: UITextField = {
         let field = UITextField()
-        field.text = "Введите название трекера"
+        field.placeholder = "Введите название трекера"
         field.font = .systemFont(ofSize: 17)
         field.layer.cornerRadius = 16
         field.backgroundColor = UIColor(red: 230/255, green: 232/255, blue: 235/255, alpha: 0.3)
-        field.textColor = UIColor(red: 174/255, green: 175/255, blue: 180/255, alpha: 1.0)
+        field.textColor = UIColor.black 
         let leftEdge = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: field.frame.height))
         field.leftView = leftEdge
         field.leftViewMode = .always
@@ -72,7 +72,7 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
         traits.delegate = self
         nameTrackerField.delegate = self
         addSubviews()
-        constraints()
+        setupConstraints()
         cancel.addTarget(self, action: #selector(tapCancel), for: .touchUpInside)
         create.addTarget(self, action: #selector(tapCreate), for: .touchUpInside)
     }
@@ -85,13 +85,13 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
             cancel,
             create,
             traits
-        ].forEach { [weak self] in
+        ].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            self?.view.addSubview($0)
+            view.addSubview($0)
         }
     }
 
-    private func constraints() {
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
                 
             label.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 38),
@@ -138,8 +138,6 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
         delegate?.newCreationTracker(habit, categoryName: "Важное")
         dismiss(animated: true, completion: nil)
     }
-    
-    
 }
 
 extension CreateHabitsController: UITableViewDataSource, UITableViewDelegate {
@@ -157,29 +155,22 @@ extension CreateHabitsController: UITableViewDataSource, UITableViewDelegate {
         
         let cell = UITableViewCell(style: .default, reuseIdentifier: cellId)
 
-        if (indexPath.row == 0) {
-            cell.textLabel?.text = "Категория"
-        } else {
-            cell.textLabel?.text = "Расписание"
-        }
-        
+        cell.textLabel?.text = indexPath.row == 0 ? "Категория" : "Расписание"
         cell.backgroundColor = UIColor(red: 230/255, green: 232/255, blue: 235/255, alpha: 0.3)
         
         let chevron = UIImageView(image: UIImage(named: "Chevron.right"))
         chevron.tag = indexPath.row
         cell.accessoryView = chevron
+        cell.selectionStyle = .none
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if (indexPath.row == 0) {
-            //cell.textLabel?.text = "Категория"
-        } else {
-            let scheduleViewController = SheduleController()
-            scheduleViewController.delegate = self
-            scheduleViewController.selectedDays = Set(selectedDays)
-            present(scheduleViewController, animated: true)
-        }
+        guard indexPath.row != 0 else { return }
+        let scheduleViewController = SheduleController()
+        scheduleViewController.delegate = self
+        scheduleViewController.selectedDays = Set(selectedDays)
+        present(scheduleViewController, animated: true)
     }
 }
 
