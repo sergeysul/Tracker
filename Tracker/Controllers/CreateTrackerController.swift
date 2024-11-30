@@ -8,7 +8,7 @@ final class CreateTrackerViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Привычка", for: .normal)
         button.backgroundColor = .black
-        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 16
         return button
     }()
@@ -17,7 +17,7 @@ final class CreateTrackerViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Нерегулярное событие", for: .normal)
         button.backgroundColor = .black
-        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 16
         return button
     }()
@@ -26,7 +26,7 @@ final class CreateTrackerViewController: UIViewController {
         let label = UILabel()
         label.text = "Создание трекера"
         label.textAlignment = .center
-        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return label
     }()
 
@@ -34,8 +34,9 @@ final class CreateTrackerViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         addSubviews()
-        constraints()
+        setupConstraints()
         habits.addTarget(self, action: #selector(tapHabitsButton), for: .touchUpInside)
+        events.addTarget(self, action: #selector(tapEventsButton), for: .touchUpInside)
     }
     
     @objc private func tapHabitsButton() {
@@ -43,7 +44,12 @@ final class CreateTrackerViewController: UIViewController {
         let createHabitsController = CreateHabitsController()
         createHabitsController.delegate = delegate
         present(createHabitsController, animated: true, completion: nil)
-       
+    }
+    
+    @objc private func tapEventsButton() {
+        
+        let createEventsController = CreateEventsController()
+        present(createEventsController, animated: true, completion: nil)
     }
     
     
@@ -58,7 +64,7 @@ final class CreateTrackerViewController: UIViewController {
         }
     }
 
-    private func constraints() {
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             
             label.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 38),
@@ -69,12 +75,13 @@ final class CreateTrackerViewController: UIViewController {
             habits.widthAnchor.constraint(equalToConstant: 335),
             habits.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 295),
             habits.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            habits.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             
             events.heightAnchor.constraint(equalToConstant: 60),
             events.widthAnchor.constraint(equalToConstant: 335),
             events.topAnchor.constraint(equalTo: habits.bottomAnchor, constant: 16),
-            events.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20)
-            
+            events.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            events.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
         ])
     }
 }

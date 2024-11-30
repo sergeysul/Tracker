@@ -2,14 +2,14 @@ import UIKit
 
 final class TrackerCell: UICollectionViewCell {
     
-    private var cellView: UIView = {
+    private let cellView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
         return view
     }()
     
-    private var emojiTracker: UILabel = {
+    private let emojiTracker: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
         label.layer.cornerRadius = 12
@@ -19,21 +19,21 @@ final class TrackerCell: UICollectionViewCell {
         return label
     }()
     
-    private var textTracker: UILabel = {
+    private let textTracker: UILabel = {
         let label = UILabel()
         label.textColor = .white
         label.font = UIFont(name: "YSDisplay-Medium", size: 12)
         return label
     }()
     
-    private var numberOfDays: UILabel = {
+    private let numberOfDays: UILabel = {
         let label = UILabel()
         label.textColor = .black
-        label.font = UIFont(name: "YSDisplay-Medium", size: 12)
+        label.font = UIFont.systemFont(ofSize: 12)
         return label
     }()
     
-    private var statusTrackerButton: UIButton = {
+    private let statusTrackerButton: UIButton = {
         let button = UIButton()
         button.tintColor = .white
         button.layer.cornerRadius = 17
@@ -46,7 +46,7 @@ final class TrackerCell: UICollectionViewCell {
         super.init(frame: frame)
         statusTrackerButton.addTarget(self, action: #selector(tapStatusTrackerButton), for: .touchUpInside)
         addSubviews()
-        constraints()
+        setupConstraints()
     }
     
     required init?(coder: NSCoder){
@@ -60,14 +60,14 @@ final class TrackerCell: UICollectionViewCell {
             textTracker,
             numberOfDays,
             statusTrackerButton
-        ].forEach { [weak self] in
+        ].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            self?.contentView.addSubview($0)
+            contentView.addSubview($0)
         }
     }
     
     
-    private func constraints() {
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             
             cellView.heightAnchor.constraint(equalToConstant: 90),
@@ -129,7 +129,7 @@ final class TrackerCell: UICollectionViewCell {
         statusTrackerButton.alpha = isFutureDate ? 0.5 : 1.0
     }
     
-    @objc func tapStatusTrackerButton(){
+    @objc private func tapStatusTrackerButton(){
        statusTrackerButtonAction?()
     }
 }

@@ -27,10 +27,9 @@ final class SheduleController: UIViewController{
     private let week: UITableView = {
         let table = UITableView()
         table.layer.cornerRadius = 16
+        table.layer.masksToBounds = true
         table.separatorStyle = .singleLine
         table.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        //table.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        //table.clipsToBounds = true
         table.isScrollEnabled = false
         return table
     }()
@@ -52,7 +51,7 @@ final class SheduleController: UIViewController{
         week.dataSource = self
         week.delegate = self
         addSubviews()
-        constraints()
+        setupConstraints()
         confirm.addTarget(self, action: #selector(tapConfirm), for: .touchUpInside)
     }
 
@@ -67,15 +66,15 @@ final class SheduleController: UIViewController{
         }
     }
     
-    private func constraints() {
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
                 
             label.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 38),
             label.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 114),
             label.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -112),
 
+            week.heightAnchor.constraint(equalToConstant: 525),
             week.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 90),
-            week.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 123),
             week.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             week.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
 
@@ -141,6 +140,7 @@ extension SheduleController: UITableViewDataSource, UITableViewDelegate {
         if indexPath.row == weekDays.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
         }
+        cell.selectionStyle = .none
         return cell
     }
 }
