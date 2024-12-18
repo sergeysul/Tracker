@@ -1,4 +1,6 @@
 import UIKit
+import CoreData
+
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -13,6 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow()
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
+        TransformWeekDay.register()
+        TransformColor.register()
         return true
     }
 
@@ -28,5 +32,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didDiscardSceneSessions sceneSessions: Set<UISceneSession>
     ) {}
+    
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "Model")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Error: \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+
+    static var shared: AppDelegate {
+        guard let delegate = UIApplication.shared.delegate as? AppDelegate else {
+            fatalError("Cannot retrieve Application delegate")
+        }
+        return delegate
+    }
+
+    func saveContext () {
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                fatalError("Error: \(nserror), \(nserror.userInfo)")
+            }
+        }
+    }
 }
 
