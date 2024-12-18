@@ -5,11 +5,11 @@ final class CategoryCell: UICollectionReusableView{
     static let identifier = "SectionHeaderIdentifier"
     
     private let label: UILabel = {
-        let lable = UILabel()
-        lable.font = UIFont.boldSystemFont(ofSize: 19)
-        lable.textAlignment = .left
-        lable.translatesAutoresizingMaskIntoConstraints = false
-        return lable
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 19)
+        label.textAlignment = .left
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     override init(frame: CGRect) {

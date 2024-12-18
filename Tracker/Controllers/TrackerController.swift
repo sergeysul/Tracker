@@ -6,6 +6,9 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
     private var categories: [TrackerCategory] = []
     private var currentDate: Date = Date()
     private var displayedCategory: [TrackerCategory] = []
+    private let trackerStore = TrackerStore.shared
+    private let categoryStore = TrackerCategoryStore.shared
+    private let recordStore = TrackerRecordStore.shared
     
     private let trackerButton: UIButton = {
         let button = UIButton()
@@ -70,6 +73,9 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
         collection.register(CategoryCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: CategoryCell.identifier)
         addSubviews()
         setupConstraints()
+        getCategories()
+        getDoneTrackers()
+        refreshTrackersForDate()
         updateTrackerView()
     }
     
@@ -140,6 +146,28 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
         ])
     }
     
+ 
+    private func getCategories() {
+        
+        categoryStore.fetchCategories { [weak self] categories in
+            DispatchQueue.main.async {
+                self?.categories = categories
+                self?.refreshTrackersForDate()
+                self?.updateTrackerView()
+            }
+        }
+    }
+
+    private func getDoneTrackers() {
+        
+        recordStore.fetchRecords { [weak self] records in
+            DispatchQueue.main.async {
+                self?.completedTrackers = Set(records)
+                self?.collection.reloadData()
+            }
+        }
+    }
+
     private func updateTrackerView() {
         let isEmpty = displayedCategory.isEmpty
         defaultTrackerLogo.isHidden = !isEmpty
@@ -171,24 +199,7 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
     }
     
     func newCreationTracker(_ tracker: Tracker, categoryName: String) {
-        
-        var newCategories = categories
-
-        if let index = newCategories.firstIndex(where: { $0.name == categoryName }) {
-            let existingCategory = newCategories[index]
-            var updatedTrackers = existingCategory.list
-            updatedTrackers.append(tracker)
-            let updatedCategory = TrackerCategory(name: existingCategory.name, list: updatedTrackers)
-            newCategories[index] = updatedCategory
-        } else {
-            let newCategory = TrackerCategory(name: categoryName, list: [tracker])
-            newCategories.append(newCategory)
-        }
-
-        categories = newCategories
-        refreshTrackersForDate()
-        updateTrackerView()
-        collection.reloadData()
+        getCategories()
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -197,25 +208,34 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
     }
     
     private func markButtonTapped(at indexPath: IndexPath) {
-        
         let selectedDate = currentDate
         let tracker = displayedCategory[indexPath.section].list[indexPath.item]
         
-        let notOrderedDescending = Calendar.current.compare(selectedDate, to: Date(), toGranularity: .day) != .orderedDescending
-        guard notOrderedDescending else { return }
-       
+        guard Calendar.current.compare(selectedDate, to: Date(), toGranularity: .day) != .orderedDescending else {
+            return
+        }
         
         let record = TrackerRecord(trackerId: tracker.id, date: selectedDate)
         
-        if let existingRecord = completedTrackers.first(where: {
-            
-            $0.trackerId == record.trackerId && Calendar.current.isDate($0.date, inSameDayAs: record.date)
-        }) {
-            completedTrackers.remove(existingRecord)
+        if completedTrackers.contains(record) {
+            recordStore.delete(trackerId: tracker.id, date: selectedDate) { [weak self] success in
+                if success {
+                    self?.completedTrackers.remove(record)
+                    DispatchQueue.main.async {
+                        self?.collection.reloadItems(at: [indexPath])
+                    }
+                }
+            }
         } else {
-            completedTrackers.insert(record)
+            recordStore.add(trackerId: tracker.id, date: selectedDate) { [weak self] success in
+                if success {
+                    self?.completedTrackers.insert(record)
+                    DispatchQueue.main.async {
+                        self?.collection.reloadItems(at: [indexPath])
+                    }
+                }
+            }
         }
-        collection.reloadItems(at: [indexPath])
     }
 }
 
