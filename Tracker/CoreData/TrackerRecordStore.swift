@@ -1,6 +1,4 @@
 import CoreData
-import UIKit
-
 
 final class TrackerRecordStore {
     

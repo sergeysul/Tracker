@@ -1,6 +1,6 @@
 import UIKit
 
-final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabitsControllerDelegate {
+final class TrackerController: UIViewController, UITextFieldDelegate, CreateHabitsControllerDelegate {
     
     private var completedTrackers: Set<TrackerRecord> = []
     private var categories: [TrackerCategory] = []
@@ -79,14 +79,13 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
         updateTrackerView()
     }
     
-    @objc private func tapTrackerButton(){
-        
+    @objc private func tapTrackerButton() {
         let createTracker = CreateTrackerViewController()
         createTracker.delegate = self
         present(createTracker, animated: true, completion: nil)
     }
     
-    @objc private func changeDate(_ sender: UIDatePicker){
+    @objc private func changeDate(_ sender: UIDatePicker) {
         currentDate = sender.date
         refreshTrackersForDate()
     }
@@ -146,9 +145,7 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
         ])
     }
     
- 
     private func getCategories() {
-        
         categoryStore.fetchCategories { [weak self] categories in
             DispatchQueue.main.async {
                 self?.categories = categories
@@ -159,11 +156,16 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
     }
 
     private func getDoneTrackers() {
-        
+        reloadCompletedTrackers { [weak self] in
+            self?.collection.reloadData()
+        }
+    }
+
+    private func reloadCompletedTrackers(completion: @escaping () -> Void) {
         recordStore.fetchRecords { [weak self] records in
             DispatchQueue.main.async {
                 self?.completedTrackers = Set(records)
-                self?.collection.reloadData()
+                completion()
             }
         }
     }
@@ -177,7 +179,6 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
     }
     
     private func refreshTrackersForDate() {
-        
         let selectedDate = currentDate
         let calendar = Calendar.current
         let selectedWeekdayNumber = calendar.component(.weekday, from: selectedDate)
@@ -210,17 +211,18 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
     private func markButtonTapped(at indexPath: IndexPath) {
         let selectedDate = currentDate
         let tracker = displayedCategory[indexPath.section].list[indexPath.item]
+        let isCompleted = completedTrackers.first { record in
+            record.trackerId == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: selectedDate)
+        }
         
         guard Calendar.current.compare(selectedDate, to: Date(), toGranularity: .day) != .orderedDescending else {
             return
         }
         
-        let record = TrackerRecord(trackerId: tracker.id, date: selectedDate)
-        
-        if completedTrackers.contains(record) {
-            recordStore.delete(trackerId: tracker.id, date: selectedDate) { [weak self] success in
-                if success {
-                    self?.completedTrackers.remove(record)
+        if let record = isCompleted {
+            recordStore.delete(trackerId: tracker.id, date: record.date) { [weak self] success in
+                guard success else { return }
+                self?.reloadCompletedTrackers {
                     DispatchQueue.main.async {
                         self?.collection.reloadItems(at: [indexPath])
                     }
@@ -228,8 +230,8 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
             }
         } else {
             recordStore.add(trackerId: tracker.id, date: selectedDate) { [weak self] success in
-                if success {
-                    self?.completedTrackers.insert(record)
+                guard success else { return }
+                self?.reloadCompletedTrackers {
                     DispatchQueue.main.async {
                         self?.collection.reloadItems(at: [indexPath])
                     }
@@ -237,8 +239,8 @@ final class TrackerController: UIViewController, UITextFieldDelegate,CreateHabit
             }
         }
     }
-}
 
+}
 
 extension TrackerController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -247,7 +249,6 @@ extension TrackerController: UICollectionViewDataSource, UICollectionViewDelegat
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return displayedCategory[section].list.count
-
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

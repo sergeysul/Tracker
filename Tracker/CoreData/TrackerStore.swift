@@ -10,7 +10,13 @@ final class TrackerStore {
         self.context = AppDelegate.shared.persistentContainer.viewContext
     }
 
-    func createTracker(id: UUID, name: String, color: UIColor, emoji: String, timing: [WeekDay], categoryName: String, completion: @escaping (Tracker?) -> Void) {
+    func createTracker(id: UUID, 
+                       name: String,
+                       color: UIColor,
+                       emoji: String,
+                       timing: [WeekDay],
+                       categoryName: String,
+                       completion: @escaping (Tracker?) -> Void) {
         
         let trackerCoreData = TrackerCoreData(context: context)
         trackerCoreData.id = id
