@@ -16,6 +16,11 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
     private var selectedColor: UIColor? {
         didSet { refreshCreateButton() }
     }
+    private var scheduleSubtitle: String = "" {
+        didSet {
+            traits.reloadData()
+        }
+    }
     private let cellId = "Habitcell"
     private let trackerStore = TrackerStore.shared
     private let emoji: [String] = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
@@ -213,8 +218,8 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
             create.heightAnchor.constraint(equalToConstant: 60),
             create.widthAnchor.constraint(equalToConstant: 166),
             create.centerYAnchor.constraint(equalTo: cancel.centerYAnchor),
-            create.leadingAnchor.constraint(equalTo: cancel.trailingAnchor, constant: 8)
-            
+            create.leadingAnchor.constraint(equalTo: cancel.trailingAnchor, constant: 8),
+            create.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
         ])
     }
     
@@ -264,7 +269,15 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
     
     func pickDay(_ days: [WeekDay]) {
         self.selectedDays = days
+        if days.isEmpty {
+            scheduleSubtitle = ""
+        } else if days.count == WeekDay.allCases.count {
+            scheduleSubtitle = "Каждый день"
+        } else {
+            scheduleSubtitle = days.map { $0.shortDisplayName }.joined(separator: ", ")
+        }
     }
+
     
     @objc func tapCancel(){
         dismiss(animated: true, completion: nil)
@@ -301,18 +314,25 @@ extension CreateHabitsController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = UITableViewCell(style: .default, reuseIdentifier: cellId)
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellId)
 
         cell.textLabel?.text = indexPath.row == 0 ? "Категория" : "Расписание"
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         cell.backgroundColor = UIColor(red: 230/255, green: 232/255, blue: 235/255, alpha: 0.3)
-        
+
+        if indexPath.row == 1 {
+            cell.detailTextLabel?.text = scheduleSubtitle
+            cell.detailTextLabel?.textColor = UIColor(red: 174/255, green: 175/255, blue: 180/255, alpha: 1)
+            cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        }
+
         let chevron = UIImageView(image: UIImage(named: "Chevron.right"))
         chevron.tag = indexPath.row
         cell.accessoryView = chevron
         cell.selectionStyle = .none
         return cell
     }
+
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard indexPath.row != 0 else { return }

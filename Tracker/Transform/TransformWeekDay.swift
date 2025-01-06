@@ -1,7 +1,5 @@
 import Foundation
 
-import Foundation
-
 @objc
 class TransformWeekDay: ValueTransformer {
     
