@@ -4,7 +4,7 @@ protocol CreateHabitsControllerDelegate: AnyObject {
     func newCreationTracker(_ tracker: Tracker, categoryName: String)
 }
 
-final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
+final class CreateHabitsController: UIViewController, SheduleControllerDelegate, CategorySelectionDelegate{
     
     weak var delegate: CreateHabitsControllerDelegate?
     private var selectedDays: [WeekDay] = [] {
@@ -14,6 +14,9 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
         didSet { refreshCreateButton() }
     }
     private var selectedColor: UIColor? {
+        didSet { refreshCreateButton() }
+    }
+    private var selectedCategory: TrackerCategory? {
         didSet { refreshCreateButton() }
     }
     private var scheduleSubtitle: String = "" {
@@ -262,7 +265,8 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
         let isFormComplete = nameTrackerField.text?.isEmpty == false &&
         selectedEmoji != nil &&
         selectedColor != nil &&
-        !selectedDays.isEmpty
+        !selectedDays.isEmpty &&
+        selectedCategory != nil
         create.isEnabled = isFormComplete
         create.backgroundColor = isFormComplete ? .black : .gray
       }
@@ -277,6 +281,11 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
             scheduleSubtitle = days.map { $0.shortDisplayName }.joined(separator: ", ")
         }
     }
+    
+    func pickCategory (_ category: TrackerCategory) {
+        selectedCategory = category
+        traits.reloadData()
+    }
 
     
     @objc func tapCancel(){
@@ -286,17 +295,22 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate{
     @objc func tapCreate(){
         
         guard let habitName = nameTrackerField.text, !habitName.isEmpty,
+              let category = selectedCategory?.name,
               let color = selectedColor,
               let emoji = selectedEmoji else {
             return
         }
         
-        let habit = Tracker(id: UUID(), name: habitName, color: color, emoji: emoji, timing: selectedDays)
+        let habit = Tracker(id: UUID(),
+                            name: habitName,
+                            color: color, 
+                            emoji: emoji,
+                            timing: selectedDays)
         
-        trackerStore.createTracker(id: habit.id, name: habit.name, color: habit.color, emoji: habit.emoji, timing: habit.timing, categoryName: "Важное") { [weak self] tracker in
+        trackerStore.createTracker(id: habit.id, name: habit.name, color: habit.color, emoji: habit.emoji, timing: habit.timing, categoryName: category) { [weak self] tracker in
             DispatchQueue.main.async {
                 guard let tracker = tracker else { return }
-                self?.delegate?.newCreationTracker(tracker, categoryName: "Важное")
+                self?.delegate?.newCreationTracker(tracker, categoryName: category)
                 self?.dismiss(animated: true, completion: nil)
             }
         }
@@ -335,12 +349,19 @@ extension CreateHabitsController: UITableViewDataSource, UITableViewDelegate {
 
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard indexPath.row != 0 else { return }
-        let scheduleViewController = SheduleController()
-        scheduleViewController.delegate = self
-        scheduleViewController.selectedDays = Set(selectedDays)
-        present(scheduleViewController, animated: true)
+        if indexPath.row == 0 {
+            let categoryViewModel = CategoryViewModel()
+            let categoryViewController = CategoryViewController(viewModel: categoryViewModel)
+            categoryViewController.delegate = self
+            present(categoryViewController, animated: true)
+        } else if indexPath.row == 1 {
+            let scheduleViewController = SheduleController()
+            scheduleViewController.delegate = self
+            scheduleViewController.selectedDays = Set(selectedDays)
+            present(scheduleViewController, animated: true)
+        }
     }
+
 }
 
 extension CreateHabitsController: UITextFieldDelegate {

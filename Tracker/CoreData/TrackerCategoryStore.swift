@@ -11,6 +11,20 @@ final class TrackerCategoryStore {
     }
 
     func createCategory(name: String, completion: @escaping (TrackerCategory?) -> Void) {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "name == %@", name)
+
+        do {
+            let existingCategories = try context.fetch(request)
+            if !existingCategories.isEmpty {
+                completion(nil)
+                return
+            }
+        } catch {
+            completion(nil)
+            return
+        }
+
         let categoryCoreData = TrackerCategoryCoreData(context: context)
         categoryCoreData.name = name
         AppDelegate.shared.saveContext()
@@ -49,4 +63,3 @@ final class TrackerCategoryStore {
         }
     }
 }
-
