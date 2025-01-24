@@ -1,7 +1,6 @@
 import UIKit
 import Foundation
 
-
 protocol CategorySelectionDelegate: AnyObject {
     func pickCategory(_ category: TrackerCategory)
 }
@@ -206,9 +205,12 @@ extension CategoryViewController: UITableViewDelegate, UITableViewDataSource {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self = self else { return }
             self.delegate?.pickCategory(picked)
-            self.navigationController?.dismiss(animated: true, completion: nil)
+            
+            if let navigationController = self.navigationController {
+                navigationController.popViewController(animated: true)
+            } else {
+                self.dismiss(animated: true, completion: nil)
+            }
         }
     }
-    
 }
-

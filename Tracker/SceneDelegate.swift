@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     private func showOnboarding() {
         let onboardingVC = OnboardingViewController()
-        onboardingVC.endOnboarding = { [weak self] in
+        onboardingVC.completedOnboarding = { [weak self] in
             UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
             UserDefaults.standard.synchronize()
             

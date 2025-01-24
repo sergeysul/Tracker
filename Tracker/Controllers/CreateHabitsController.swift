@@ -24,6 +24,11 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate,
             traits.reloadData()
         }
     }
+    private var categorySubtitle: String = "" {
+        didSet {
+            traits.reloadData()
+        }
+    }
     private let cellId = "Habitcell"
     private let trackerStore = TrackerStore.shared
     private let emoji: [String] = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
@@ -282,10 +287,12 @@ final class CreateHabitsController: UIViewController, SheduleControllerDelegate,
         }
     }
     
-    func pickCategory (_ category: TrackerCategory) {
+    func pickCategory(_ category: TrackerCategory) {
         selectedCategory = category
+        categorySubtitle = category.name
         traits.reloadData()
     }
+
 
     
     @objc func tapCancel(){
@@ -334,11 +341,14 @@ extension CreateHabitsController: UITableViewDataSource, UITableViewDelegate {
         cell.textLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         cell.backgroundColor = UIColor(red: 230/255, green: 232/255, blue: 235/255, alpha: 0.3)
 
-        if indexPath.row == 1 {
+        if indexPath.row == 0 {
+            cell.detailTextLabel?.text = categorySubtitle.isEmpty ? "" : categorySubtitle
+        } else if indexPath.row == 1 {
             cell.detailTextLabel?.text = scheduleSubtitle
-            cell.detailTextLabel?.textColor = UIColor(red: 174/255, green: 175/255, blue: 180/255, alpha: 1)
-            cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         }
+        
+        cell.detailTextLabel?.textColor = UIColor(red: 174/255, green: 175/255, blue: 180/255, alpha: 1)
+        cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
 
         let chevron = UIImageView(image: UIImage(named: "Chevron.right"))
         chevron.tag = indexPath.row
@@ -351,7 +361,7 @@ extension CreateHabitsController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
             let categoryViewModel = CategoryViewModel()
-            let categoryViewController = CategoryViewController(viewModel: categoryViewModel)
+            let categoryViewController = CategoryViewController(viewModel: categoryViewModel, pickedCategory: selectedCategory)
             categoryViewController.delegate = self
             present(categoryViewController, animated: true)
         } else if indexPath.row == 1 {

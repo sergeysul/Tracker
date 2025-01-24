@@ -1,6 +1,5 @@
 import Foundation
 
-
 final class CategoryViewModel: CategoryViewModelProtocol {
     
     private let store: TrackerCategoryStore

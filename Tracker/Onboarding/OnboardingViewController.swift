@@ -2,7 +2,7 @@ import UIKit
 
 class OnboardingViewController: UIPageViewController {
     
-    var endOnboarding: (() -> Void)?
+    var completedOnboarding: (() -> Void)?
     
     init() {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
@@ -72,7 +72,7 @@ class OnboardingViewController: UIPageViewController {
     }
     
     @objc func tapButton(){
-        endOnboarding?()
+        completedOnboarding?()
     }
 }
     
