@@ -9,8 +9,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-        
-        if UserDefaults.standard.bool(forKey: "hasSeenOnboarding") {
+        if UserDefaultsSettings.shared.onboardingWasShown {
             switchToMainViewController()
         } else {
             showOnboarding()
@@ -22,9 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func showOnboarding() {
         let onboardingVC = OnboardingViewController()
         onboardingVC.completedOnboarding = { [weak self] in
-            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
-            UserDefaults.standard.synchronize()
-            
+            UserDefaultsSettings.shared.onboardingWasShown = true
             self?.switchToMainViewController()
         }
         window?.rootViewController = onboardingVC
