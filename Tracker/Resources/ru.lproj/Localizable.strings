@@ -1,0 +1,15 @@
+"trackers" = "Трекеры";
+"filters" = "Фильтры";
+"statistics" = "Статистика";
+"search" = "Поиск";
+"emptyState.title" = "Что будем отслеживать?";
+"delete" = "Удалить";
+"delete.confirmation" = "Уверены что хотите удалить трекер?";
+"cancel" = "Отменить";
+"filter_button" = "Фильтры";
+"all_trackers" = "Все трекеры";
+"trackers_for_today" = "Трекеры на сегодня";
+"completed" = "Завершённые";
+"incompleted" = "Незавершённые";
+"nothing_found" = "Ничего не найдено";
+"pinned" = "Закреплённые";

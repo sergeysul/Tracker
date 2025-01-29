@@ -1,0 +1,15 @@
+"trackers" = "Trackers";
+"filters" = "Filters";
+"statistics" = "Statistics";
+"search" = "Search";
+"emptyState.title" = "What are we tracking?";
+"delete" = "Delete";
+"delete.confirmation" = "Are you sure you want to delete the tracker?";
+"cancel" = "Abort";
+"filter_button" = "Filters";
+"all_tracker" = "All tracker";
+"trackers_for_today" = "Trackers for today";
+"completed" = "Completed";
+"incompleted" = "Incompleted";
+"nothing_found" = "Nothing was found";
+"pinned" = "Pinned";

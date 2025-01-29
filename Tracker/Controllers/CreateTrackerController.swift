@@ -2,7 +2,8 @@ import UIKit
 
 final class CreateTrackerViewController: UIViewController {
     
-    weak var delegate: CreateHabitsControllerDelegate?
+    weak var delegateHabit: CreateHabitsControllerDelegate?
+    weak var delegateEvent: CreateEventsControllerDelegate?
 
     private let habits: UIButton = {
         let button = UIButton()
@@ -42,13 +43,14 @@ final class CreateTrackerViewController: UIViewController {
     @objc private func tapHabitsButton() {
         
         let createHabitsController = CreateHabitsController()
-        createHabitsController.delegate = delegate
+        createHabitsController.delegate = delegateHabit
         present(createHabitsController, animated: true, completion: nil)
     }
     
     @objc private func tapEventsButton() {
         
         let createEventsController = CreateEventsController()
+        createEventsController.delegate = delegateEvent
         present(createEventsController, animated: true, completion: nil)
     }
     

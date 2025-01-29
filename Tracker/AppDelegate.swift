@@ -1,6 +1,6 @@
 import UIKit
 import CoreData
-
+import YandexMobileMetrica
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -12,11 +12,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         let viewController = TabBarViewController()
+        guard let configuration = YMMYandexMetricaConfiguration(apiKey: "c98a1c9e-f4e7-4d75-8d79-ef770c202e0a") else {
+            return true
+        }
         window = UIWindow()
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
         TransformWeekDay.register()
         TransformColor.register()
+        YMMYandexMetrica.activate(with: configuration)
         return true
     }
 
