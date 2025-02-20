@@ -5,7 +5,7 @@ final class TrackerCell: UICollectionViewCell {
     private let cellView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
-        view.layer.masksToBounds = true
+        view.layer.masksToBounds = false
         return view
     }()
     
@@ -19,6 +19,14 @@ final class TrackerCell: UICollectionViewCell {
         return label
     }()
     
+    private let pin: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "Pin")
+        imageView.tintColor = .white
+        imageView.isHidden = false
+        return imageView
+    }()
+    
     private let textTracker: UILabel = {
         let label = UILabel()
         label.textColor = .white
@@ -28,14 +36,14 @@ final class TrackerCell: UICollectionViewCell {
     
     private let numberOfDays: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .blackFull
         label.font = UIFont.systemFont(ofSize: 12)
         return label
     }()
     
     private let statusTrackerButton: UIButton = {
         let button = UIButton()
-        button.tintColor = .white
+        button.tintColor = .whiteFull
         button.layer.cornerRadius = 17
         return button
     }()
@@ -57,6 +65,7 @@ final class TrackerCell: UICollectionViewCell {
         [
             cellView,
             emojiTracker,
+            pin,
             textTracker,
             numberOfDays,
             statusTrackerButton
@@ -81,6 +90,11 @@ final class TrackerCell: UICollectionViewCell {
             emojiTracker.widthAnchor.constraint(equalToConstant: 24),
             emojiTracker.topAnchor.constraint(equalTo: cellView.topAnchor, constant: 12),
             emojiTracker.leadingAnchor.constraint(equalTo: cellView.leadingAnchor, constant: 12),
+            
+            pin.heightAnchor.constraint(equalToConstant: 24),
+            pin.widthAnchor.constraint(equalToConstant: 24),
+            pin.topAnchor.constraint(equalTo: cellView.topAnchor, constant: 12),
+            pin.trailingAnchor.constraint(equalTo: cellView.trailingAnchor, constant: -4),
 
             textTracker.bottomAnchor.constraint(equalTo: cellView.bottomAnchor, constant: -12),
             textTracker.leadingAnchor.constraint(equalTo: cellView.leadingAnchor, constant: 12),
@@ -99,25 +113,17 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     private func formatNumerDays(for count: Int) -> String {
-        let units = count % 10
-        let hundreds = count % 100
-        
-        if units == 1 && hundreds != 11 {
-            return "\(count) день"
-        } else if (units >= 2 && units <= 4 && hundreds < 10) || hundreds >= 20 {
-            return "\(count) дня"
-        } else {
-            return "\(count) дней"
-        }
+        let formatString: String = NSLocalizedString("days_count", comment: "")
+        let result: String = String.localizedStringWithFormat(formatString, count)
+        return result
     }
 
-    func config(with tracker: Tracker, isCompleted: Bool, completedDays: Int, isFutureDate: Bool) {
+    func config(with tracker: Tracker, isCompleted: Bool, completedDays: Int, isFutureDate: Bool, isPinned: Bool) {
         emojiTracker.text = tracker.emoji
         textTracker.text = tracker.name
         cellView.backgroundColor = tracker.color
     
-        let day = formatNumerDays(for: completedDays)
-        numberOfDays.text = "\(day)"
+        numberOfDays.text = formatNumerDays(for: completedDays)
         
         let configuration = UIImage.SymbolConfiguration(pointSize: 11, weight: .bold)
         let imageName = isCompleted ? "checkmark" : "plus"
@@ -127,6 +133,7 @@ final class TrackerCell: UICollectionViewCell {
         statusTrackerButton.backgroundColor = isCompleted ? tracker.color.withAlphaComponent(0.3) : tracker.color
         statusTrackerButton.isEnabled = !isFutureDate
         statusTrackerButton.alpha = isFutureDate ? 0.5 : 1.0
+        pin.isHidden = !isPinned
     }
     
     @objc private func tapStatusTrackerButton(){
